@@ -1,0 +1,72 @@
+# heaps.cpp test input
+# One response per line, in the same order as the menu prompts.
+# Lines beginning with '#' and blank lines are ignored.
+
+# Start with a min-heap.
+1
+
+# Load values (option 7), then inspect the array, tree, and heap property.
+7
+41, 7, 23, 15, 3, 36, 9, 28, 12, 50
+9
+10
+11
+
+# Read the minimum, insert a value, and decrease a key.
+2
+1
+1
+4
+4
+1
+
+# Change a key in both directions, then delete an element.
+5
+2
+45
+5
+2
+4
+6
+3
+
+# Display the min-heap sorted result and its current array.
+8
+9
+
+# Switch to max-heap and inspect the rebuilt tree and property.
+12
+10
+11
+
+# Read the maximum, increase a key, and change a key downwards.
+2
+4
+1
+4
+2
+60
+5
+2
+20
+
+# Extract the max, enable tracing, and insert a value to show swaps.
+3
+13
+1
+5
+
+# Show the traced max-heap, then switch back to min-heap.
+10
+12
+10
+11
+
+# Final visual inspection of both heap representations.
+12
+10
+12
+10
+
+# Exit.
+0
