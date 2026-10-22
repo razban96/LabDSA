@@ -11,7 +11,7 @@ endif ()
 
 # Target 1: AVL Tree Executable
 add_executable(avl_tree
-        AVL/main.cppa
+        AVL/main.cpp
         AVL/AVLTree.hpp
 )
 target_include_directories(avl_tree PRIVATE AVL)
@@ -26,3 +26,4 @@ target_include_directories(heaps PRIVATE Heaps)
 add_executable(trie
         TrieTrees/trie.cpp)
 target_include_directories(trie PRIVATE TrieTrees)
+add_executable(btrees BTrees/btrees.cpp)
