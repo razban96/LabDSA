@@ -11,10 +11,11 @@ endif ()
 
 # Target 1: AVL Tree Executable
 add_executable(avl_tree
-        AVL/main.cpp
+        AVL/main.cppa
         AVL/AVLTree.hpp
 )
 target_include_directories(avl_tree PRIVATE AVL)
+
 # Target 2: Heaps Executable
 add_executable(heaps
         Heaps/heaps.cpp
