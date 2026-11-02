@@ -26,4 +26,11 @@ target_include_directories(heaps PRIVATE Heaps)
 add_executable(trie
         TrieTrees/trie.cpp)
 target_include_directories(trie PRIVATE TrieTrees)
+
+# Target 4: BTrees
 add_executable(btrees BTrees/btrees.cpp)
+target_include_directories(btrees PRIVATE BTrees)
+
+# Target 5: Dijkstra
+add_executable(dijkstra Dijkstra/Dijkstra.cpp)
+target_include_directories(dijkstra PRIVATE Dijkstra)
