@@ -64,9 +64,11 @@ struct Graph {
     int label(int v) const { return v + base; }
 
     bool hasNegative() const {
-        for (const Edge& e : edges)
-            if (e.cost < 0) return true;
-        return false;
+        for (const Edge& e : edges) {
+        if (e.cost < 0)
+          return true;
+      }
+      return false;
     }
 };
 
@@ -103,11 +105,11 @@ public:
     void decrease(int v) { up(pos_[v]); } // d[v] has just dropped: v sifts up
 
     int pop() { // extracts the vertex with the smallest distance
-        int top = h_, last = h_.back();
+        int top = h_[0], last = h_.back();
         h_.pop_back();
         pos_[top] = -1;
         if (!h_.empty()) {
-            h_ = last;
+            h_[0] = last;
             down(0);
         }
         return top;
@@ -255,7 +257,7 @@ Result bellmanFord(const Graph& g, int s) {
         std::reverse(r.cycle.begin(), r.cycle.end()); // in the direction of the arcs
         std::rotate(r.cycle.begin(),                  // start at the smallest vertex
                     std::min_element(r.cycle.begin(), r.cycle.end()), r.cycle.end());
-        r.cycle.push_back(r.cycle);
+        r.cycle.push_back(x);
     }
     markNegInf(g, bad, r.dist);
     return r;
@@ -328,8 +330,8 @@ static bool loadGraph(const std::string& file, Graph& g, std::string& err) {
         }
         if (n < 0) {
             if (v.size() != 2) { err = where + "n and m were expected"; return false; }
-            n = v;
-            m = v;
+            n = v[0];
+            m = v[1];
             if (n < 1 || n > 1000000) {
                 err = where + "n must be between 1 and 10^6";
                 return false;
@@ -346,15 +348,15 @@ static bool loadGraph(const std::string& file, Graph& g, std::string& err) {
             err = where + "the file has more than m = " + std::to_string(m) + " arcs";
             return false;
         }
-        if (v < INT_MIN || v > INT_MAX || v < INT_MIN || v > INT_MAX) {
+        if (v[0] < INT_MIN || v[0] > INT_MAX || v[1] < INT_MIN || v[1] > INT_MAX) {
             err = where + "vertex out of range";
             return false;
         }
-        if (v < -MAX_COST || v > MAX_COST) {
+        if (v[2] < -MAX_COST || v[2] > MAX_COST) {
             err = where + "the cost must be between -10^9 and 10^9";
             return false;
         }
-        Edge e = {static_cast<int>(v), static_cast<int>(v), static_cast<int>(v)};
+        Edge e = {static_cast<int>(v[0]), static_cast<int>(v[1]), static_cast<int>(v[2])};
         lo = std::min(lo, std::min(e.from, e.to));
         list.push_back(e);
         lineOf.push_back(no);
@@ -564,8 +566,8 @@ static void printResult(const Graph& g, const Result& r, int s) {
 }
 
 typedef Result (*Algorithm)(const Graph&, int);
-const char* const NAMES = {"Dijkstra, no heap", "Dijkstra, min-heap", "Bellman-Ford"};
-const Algorithm ALGS = {dijkstraArray, dijkstraHeap, bellmanFord};
+const char* const NAMES[] = {"Dijkstra, no heap", "Dijkstra, min-heap", "Bellman-Ford"};
+const Algorithm ALGS[] = {dijkstraArray, dijkstraHeap, bellmanFord};
 
 // the mean time of one run, in milliseconds; runs repeat until 0.2 s have passed
 static double timeMs(Algorithm alg, const Graph& g, int s, Result* keep) {
@@ -593,8 +595,8 @@ static std::string same(int diff) {
 }
 
 static void compareAll(const Graph& g, int s) {
-    Result r = {Result(0), Result(0), Result(0)};
-    double t;
+    Result r[3] = {Result(g.n), Result(g.n), Result(g.n)};
+    double t[3];
     for (int i = 0; i < 3; i++) t[i] = timeMs(ALGS[i], g, s, &r[i]);
     std::cout << " algorithm time arcs examined"
               << " distances decreased\n";
@@ -606,13 +608,13 @@ static void compareAll(const Graph& g, int s) {
         std::cout << '\n';
     }
     std::cout << " Dijkstra without and with a heap: "
-              << same(differences(r, r)) << '\n';
-    if (r.negCycle) {
+              << same(differences(r[0], r[1])) << '\n';
+    if (r[2].negCycle) {
         std::cout << " Bellman-Ford found a negative cycle: Dijkstra's distances mean "
                   << "nothing.\n";
         return;
     }
-    int d = differences(r, r);
+    int d = differences(r[0], r[2]);
     std::cout << " Dijkstra and Bellman-Ford: " << same(d);
     if (d) std::cout << " (Dijkstra is wrong because of the negative-cost arcs)";
     std::cout << '\n';
@@ -625,7 +627,7 @@ static void doubling(int n0, int count, int degree) {
     csv << "n,m,dijkstra_array_ms,dijkstra_heap_ms,bellman_ford_ms,passes\n";
     std::cout << " n m Dijkstra, no heap Dijkstra, heap "
               << " Bellman-Ford\n";
-    double prev = {0, 0, 0};
+    double prev[3] = {0, 0, 0};
     long long n = n0;
     for (int i = 0; i < count; i++, n *= 2) {
         long long m = std::max(n - 1, degree > 0 ? n * degree : n * (n - 1) / 4);
@@ -639,7 +641,7 @@ static void doubling(int n0, int count, int degree) {
         }
         std::cout << std::setw(9) << n << std::setw(11) << m << std::flush;
         Result bf(0);
-        double t;
+        double t[3];
         for (int k = 0; k < 3; k++) {
             t[k] = timeMs(ALGS[k], g, 0, k == 2 ? &bf : nullptr);
             std::ostringstream cell;
@@ -650,7 +652,7 @@ static void doubling(int n0, int count, int degree) {
             prev[k] = t[k];
         }
         std::cout << " (" << plural(bf.passes, "pass", "passes") << ")\n";
-        csv << n << ',' << m << ',' << t << ',' << t << ',' << t << ','
+        csv << n << ',' << m << ',' << t[0] << ',' << t[1] << ',' << t[2] << ','
             << bf.passes << '\n';
     }
     std::cout << " xk = T(2n) / T(n). The results are also in doubling.csv.\n";
@@ -675,12 +677,12 @@ static Ask askNum(const std::string& prompt, long long lo, long long hi, long lo
     if (askLine(prompt, line) == END) return END;
     if (line.empty() && dflt) { x = *dflt; return OK; }
     std::vector<long long> v;
-    if (!parseNums(line, v) || v.size() != 1 || v < lo || v > hi) {
+    if (!parseNums(line, v) || v.size() != 1 || v[0] < lo || v[0] > hi) {
         std::cout << "Invalid value: enter one integer between " << lo << " and " << hi
                   << ".\n";
         return BAD;
     }
-    x = v;
+    x = v[0];
     return OK;
 }
 
@@ -809,10 +811,10 @@ int main(int argc, char** argv) {
     std::string err;
     std::cout << "Single-source shortest paths - DSA lab\n";
     if (argc > 1) {
-        if (loadGraph(argv, S.g, err))
-            std::cout << "Loaded " << argv << ".\n";
+        if (loadGraph(argv[1], S.g, err))
+            std::cout << "Loaded " << argv[1] << ".\n";
         else
-            std::cout << argv << ": " << err << ".\n";
+            std::cout << argv[1] << ": " << err << ".\n";
     }
     for (;;) {
         std::cout << "\n=== graph: " << plural(S.g.n, "vertex", "vertices") << ", "
