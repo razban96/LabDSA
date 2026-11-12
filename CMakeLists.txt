@@ -37,5 +37,5 @@ target_include_directories(dijkstra PRIVATE Dijkstra)
 
 # Target 6: Roy-Floyd
 add_executable(roy_floyd Roy-Floyd/royfloyd.cpp)
-target_include_directories(roy_floyd Roy-Floyd/royfloyd.cpp)
+target_include_directories(roy_floyd PRIVATE Roy-Floyd)
 
